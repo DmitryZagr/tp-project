@@ -69,6 +69,8 @@ abspath() {
 
 help="Usage: just pass archive with a path for it to be loaded in HDFS as first argument."
 
+basehdfspath="/user/hive/rawlogs"
+
 #Logic of the script starts
 #This command won't allow continue if an error occures during run
 set -e
@@ -106,6 +108,10 @@ cd "$archivepath"
 
 #Made extracting here
 extract "$truepath"
+#Move archive back (if archive wasn't deleted)
+if [ -f $truepath ]; then
+    mv "$truepath" "$oldtruepath"
+fi
 
 #Get file type
 echo ${archivename##*.}
@@ -125,12 +131,30 @@ len=0
 len=${#array[@]}
 echo "Found : ${len}"
 
-#Iterate over founded files
-i=0
-while [ $i -lt $len ]
-do
-    echo ${array[i++]}
-done
+#Get files extension
+basehdfspath="$basehdfspath/$archivenamenoformat.${array[0]##*.}"
+echo "$basehdfspath"
+
+#Create file in HDFS
+hdfs dfs -rm -f $basehdfspath
+hdfs dfs -touchz $basehdfspath
+
+#Iterate over founded files and load them in one file in HDFS
+# i=0
+# while [ $i -lt $len ]
+# do
+    # cat ${array[i++]} | hdfs dfs -put - $basehdfspath
+    # hdfs dfs -appendToFile ${array[i++]} $basehdfspath
+    # echo ${array[i++]}
+# done
+
+# hdfs dfs -appendToFile ${array[1]} $basehdfspath
+
+# Load all files to stdin where they are streamed to HDFS
+cat ${array[*]} | hdfs dfs -appendToFile - $basehdfspath
+
+#Give all permissions for the created file
+hdfs dfs -chmod -R 777 $basehdfspath
 
 #Go back to directory command have been called from
 cd "$wascurpath"

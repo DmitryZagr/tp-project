@@ -2,7 +2,7 @@
 CREATE DATABASE IF NOT EXISTS BRO;
 
 CREATE TABLE IF NOT EXISTS BRO.NOTICE (
-                                        ts TIMESTAMP COMMENT 'Timstamp', uid STRING COMMENT 'Connection unique id',
+                                        ts BIGINT COMMENT 'Timstamp', uid STRING COMMENT 'Connection unique id',
                                         id_orig_h STRING COMMENT 'Originating endpoint’s IP address (AKA ORIG)',
                                         id_orig_p INT COMMENT 'Originating endpoint’s TCP/UDP port (or ICMP code)',
                                         id_resp_h STRING COMMENT 'Responding endpoint’s IP address (AKA RESP)',
@@ -19,10 +19,10 @@ CREATE TABLE IF NOT EXISTS BRO.NOTICE (
                                         p INT COMMENT 'Associated port, if any',
                                         peer_descr STRING COMMENT 'Description for peer that raised this notice',
                                         actions STRING COMMENT 'Actions applied to this notice',
-                                        suppress_for INTERVAL COMMENT 'Length of time dupes should be suppressed',
-                                        dropped BOOLEAN COMMENT 'If the src IP was blocked'
+                                        suppress_for BIGINT COMMENT 'Length of time dupes should be suppressed',
+                                        dropped STRING COMMENT 'If the src IP was blocked'
                                       )
-ROW FORMAT DELIMITED FIELDS TERMINATED BY \"\t\" STORED AS TEXTFILE; 
+ROW FORMAT DELIMITED FIELDS TERMINATED BY "\t" STORED AS TEXTFILE 
 
 
 

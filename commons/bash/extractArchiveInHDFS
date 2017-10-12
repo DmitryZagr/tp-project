@@ -2,7 +2,8 @@
 
 set -e
 
-archivepath="/hadoop/dfs/data/Archives/"
+# archivepath="/hadoop/dfs/data/Archives/"
+archivepath="/root/hadoop_data/"
 
 # echo "Enter archive name: "
 # read archivename

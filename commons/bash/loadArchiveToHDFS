@@ -92,6 +92,8 @@ wascurpath="$PWD"
 #Go to archive directory
 cd "$archivepath"
 
+echo "Making new directory for extracting"
+
 #Make special dir for unarchived data (named as the archive)
 mkdir -p "$archivenamenoformat"
 #Update paths to archive
@@ -101,60 +103,61 @@ truepath="$archivepath/$archivename"
 #Move archive to its new place
 mv "$oldtruepath" "$truepath"
 
+echo "Local directory for extracted data: $archivepath"
+
 #Go to new archive directory
 cd "$archivepath"
 
 #echo "---$truepath---"
 
+echo "Extracting the archive... Don't close the program!"
 #Made extracting here
 extract "$truepath"
 #Move archive back (if archive wasn't deleted)
 if [ -f $truepath ]; then
     mv "$truepath" "$oldtruepath"
+else
+    echo "Note: archive was deleted during extraction!"
 fi
 
-#Get file type
-echo ${archivename##*.}
-#Get only name of the archive
-echo ${archivename%%.*}
+echo "Move extracted data to HDFS..."
+echo "From local machine: $archivepath"
+echo "To HDFS: $basehdfspath" 
 
-echo "$archivepath"
-#echo $(find "$archivepath" -name '*.txt')
+hdfs dfsadmin -safemode leave
+hdfs dfs -put -f $archivepath $basehdfspath
 
-#Search for all .txt, .log and .csv files in extracted directory
-array=()
-while IFS=  read -r -d $'\0'; do
-    array+=("$REPLY")
-done < <(find "$archivepath" -name '*.txt' -print0 -o -name '*.csv' -print0 -o -name '*.log' -print0)
-
-len=0
-len=${#array[@]}
-echo "Found : ${len}"
-
-#Get files extension
-basehdfspath="$basehdfspath/$archivenamenoformat.${array[0]##*.}"
+echo "Success! Now your can find your data in HDFS at path:"
 echo "$basehdfspath"
-
-#Create file in HDFS
-hdfs dfs -rm -f $basehdfspath
-hdfs dfs -touchz $basehdfspath
-
-#Iterate over founded files and load them in one file in HDFS
-# i=0
-# while [ $i -lt $len ]
-# do
-    # cat ${array[i++]} | hdfs dfs -put - $basehdfspath
-    # hdfs dfs -appendToFile ${array[i++]} $basehdfspath
-    # echo ${array[i++]}
-# done
-
-# hdfs dfs -appendToFile ${array[1]} $basehdfspath
-
-# Load all files to stdin where they are streamed to HDFS
-cat ${array[*]} | hdfs dfs -appendToFile - $basehdfspath
-
-#Give all permissions for the created file
-hdfs dfs -chmod -R 777 $basehdfspath
 
 #Go back to directory command have been called from
 cd "$wascurpath"
+
+# !!! Old algorithm
+
+#Search for all .txt, .log and .csv files in extracted directory
+# array=()
+# while IFS=  read -r -d $'\0'; do
+#     array+=("$REPLY")
+# done < <(find "$archivepath" -name '*.txt' -print0 -o -name '*.csv' -print0 -o -name '*.log' -print0)
+
+# len=0
+# len=${#array[@]}
+# echo "Found : ${len}"
+
+# #Get files extension
+# basehdfspath="$basehdfspath/$archivenamenoformat.${array[0]##*.}"
+# echo "$basehdfspath"
+
+# #Create file in HDFS
+# hdfs dfs -rm -f $basehdfspath
+# hdfs dfs -touchz $basehdfspath
+
+# # Load all files to stdin where they are streamed to HDFS
+# cat ${array[*]} | hdfs dfs -appendToFile - $basehdfspath
+
+# #Give all permissions for the created file
+# hdfs dfs -chmod -R 777 $basehdfspath
+
+# #Go back to directory command have been called from
+# cd "$wascurpath"

@@ -2,15 +2,14 @@
 
 set -e
 
-# archivepath="/hadoop/dfs/data/Archives/"
-archivepath="/root/hadoop_data/"
+archivepath="/root/hadoop_data"
 
 # echo "Enter archive name: "
 # read archivename
 
-dockerinfo="$(docker ps -f name=datanode)"
-datanodeinfo=${dockerinfo##*$'\n'}
-datanodeid=${datanodeinfo%%$' '*}
+datanodeid="$(docker ps -f name=datanode -aq -n 1)"
+# datanodeinfo=${dockerinfo##*$'\n'}
+# datanodeid=${datanodeinfo%%$' '*}
 
 array=()
 while IFS=  read -r -d $'\0'; do
@@ -35,34 +34,49 @@ done < <(docker exec -it $datanodeid find $archivepath -print0)
 len=0
 len=${#array[@]}
 
+tput clear
+
+offset=3
+
+# Move cursor to screen location X,Y (top left is 0,0)
+tput cup $offset 15
+
+# Set a foreground colour using ANSI escape
+tput setaf 3
+echo "Archive to HDFS extracter"
+tput sgr0
+
+if [ $len -eq 0 ]
+then
+	offset=$(($offset+2))
+	tput cup $offset 18
+	echo "No archives found!"
+	offset=$(($offset+1))
+	tput cup $offset 10
+	echo "Please, put them in 'archives' folder"
+	offset=$(($offset+2))
+	tput cup $offset 0
+fi
+
 i=0
 
 if [ $i -lt $len ]
 then
-	# clear the screen
-	tput clear
-
-	# Move cursor to screen location X,Y (top left is 0,0)
-	tput cup 3 15
-
-	# Set a foreground colour using ANSI escape
-	tput setaf 3
-	echo "Archive to HDFS extracter"
-	tput sgr0
-
 	while [ $i -lt $len ]
 	do
 		filepath=${array[i]}
 		tput sgr0
  
- 		offset=$((5+$i*2))
+ 		# offset=$((5+$i*2))
+ 		offset=$(($offset+2))
 		tput cup $offset 15
 	    echo "$((i+1)). ${filepath##*/}"
 
 	    i=$(($i+1))
 	done
 
-	offset=$((5+$i*2))
+	# offset=$((5+$i*2))
+	offset=$(($offset+2))
 	# Set bold mode
 	tput bold
 	tput cup $offset 15
@@ -81,7 +95,8 @@ then
 	while [ $nointeger -eq 1 ] ; do
 		# [$choice -le $i] && [$choice -ge 1]
 		# position=$(($position+1))
-		offset=$((5+$i*2))
+		# offset=$((5+$i*2))
+		offset=$(($offset+2))
 		tput cup $(($offset-1)) 15
 	    echo "Please, enter correct number!"
 	    # tput cup $offset 0
@@ -101,11 +116,11 @@ then
 	tput sgr0
 	# tput rc
 
-	offset=$((7+$i*2))
-	tput cup $offset 15
+	# offset=$((7+$i*2))
+	offset=$(($offset+2))
+	tput cup $offset 0
 
 	docker exec -it $datanodeid /bin/loadArchiveToHDFS ${array[$(($choice-1))]}
-
 fi
 
 # docker exec -it datanodeid /bin/loadArchiveToHDFS $archivepath$archivename

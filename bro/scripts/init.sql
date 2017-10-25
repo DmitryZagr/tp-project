@@ -1,10 +1,34 @@
 
+-- EXTERNAL allows us not to copy data in hive location
+-- Location should be defined (path to extracted data in HDFS)
+-- Here is a template of how to create table using raw logs in HDFS:
+
+CREATE EXTERNAL TABLE IF NOT EXISTS [TABLE_NAME] (
+     [column_name] [data_type] COMMENT '[comment]'
+)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY "\t" 
+-- in your logs fields may be delimeted by \t or , or |. It should be known from log file
+STORED AS TEXTFILE 
+LOCATION "[path to extrcted logs folder in HDFS]";
+
+-- This command should be executed for ANY table using external HDFS data,
+-- because log files could be located in subdirectories
+-- WITHOUT this command hive WON'T search for logs in subdirectories
+
+alter table [TABLE_NAME] set tblproperties ("hive.input.dir.recursive" = "TRUE",
+     "hive.mapred.supports.subdirectories" = "TRUE",
+     "hive.supports.subdirectories" = "TRUE",
+     "mapred.input.dir.recursive" = "TRUE"
+)
+
+-- Here you can see example of tables structers for Bro log format:
+-- (location paths are written for example)
+
 CREATE DATABASE IF NOT EXISTS BRO;
 
--- EXTERNAL allows us not to copy data in hive location
--- location should be defined (raw logs in HDFS)
 CREATE EXTERNAL TABLE IF NOT EXISTS BRO.NOTICE (
-                                        ts BIGINT COMMENT 'Timstamp', uid STRING COMMENT 'Connection unique id',
+                                        ts BIGINT COMMENT 'Timstamp', 
+                                        uid STRING COMMENT 'Connection unique id',
                                         id_orig_h STRING COMMENT 'Originating endpoint’s IP address (AKA ORIG)',
                                         id_orig_p INT COMMENT 'Originating endpoint’s TCP/UDP port (or ICMP code)',
                                         id_resp_h STRING COMMENT 'Responding endpoint’s IP address (AKA RESP)',
@@ -25,16 +49,6 @@ CREATE EXTERNAL TABLE IF NOT EXISTS BRO.NOTICE (
                                         dropped STRING COMMENT 'If the src IP was blocked'
                                       )
 ROW FORMAT DELIMITED FIELDS TERMINATED BY "\t" STORED AS TEXTFILE LOCATION "/user/hive/rawlogs/notice"
-
--- This command should be executed for ANY table using external HDFS data,
--- because log files could be located in subdirectories
--- WITHOUT this command hive WON'T search subdirs!!!!!!!!!!!
-alter table [TABLE_NAME] set tblproperties ("hive.input.dir.recursive" = "TRUE",
-     "hive.mapred.supports.subdirectories" = "TRUE",
-     "hive.supports.subdirectories" = "TRUE",
-     "mapred.input.dir.recursive" = "TRUE"
-     )
-
 
 CREATE EXTERNAL TABLE IF NOT EXISTS BRO.CONNECTION (
                                         ts DOUBLE COMMENT 'Timstamp', ---TODO: fix timestamp type

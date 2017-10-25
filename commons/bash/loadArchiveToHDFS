@@ -67,7 +67,7 @@ abspath() {
     )
 }
 
-help="Usage: just pass archive with a path for it to be loaded in HDFS as first argument."
+help="Usage: pass archive with a path for it to be loaded in HDFS as first argument."
 
 basehdfspath="/user/hive/rawlogs"
 
@@ -124,11 +124,11 @@ echo "Move extracted data to HDFS..."
 echo "From local machine: $archivepath"
 echo "To HDFS: $basehdfspath" 
 
-hdfs dfsadmin -safemode leave
+# hdfs dfsadmin -safemode leave
 hdfs dfs -put -f $archivepath $basehdfspath
 
-echo "Success! Now your can find your data in HDFS at path:"
-echo "$basehdfspath"
+echo "Success! Extracted data now in HDFS at path:"
+echo "$basehdfspath/$archivenamenoformat"
 
 #Go back to directory command have been called from
 cd "$wascurpath"

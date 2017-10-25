@@ -13,7 +13,7 @@ datanodeid="$(docker ps -f name=datanode -aq -n 1)"
 
 array=()
 while IFS=  read -r -d $'\0'; do
-	case "${REPLY##*.}" in
+    case "${REPLY##*.}" in
                 *tar.bz2|*tar.gz|*tar.xz|*tbz2|*tgz|*txz|*tar)
                 array+=("$REPLY");;
                 *lzma)      array+=("$REPLY");;
@@ -48,79 +48,79 @@ tput sgr0
 
 if [ $len -eq 0 ]
 then
-	offset=$(($offset+2))
-	tput cup $offset 18
-	echo "No archives found!"
-	offset=$(($offset+1))
-	tput cup $offset 10
-	echo "Please, put them in 'archives' folder"
-	offset=$(($offset+2))
-	tput cup $offset 0
+    offset=$(($offset+2))
+    tput cup $offset 18
+    echo "No archives found!"
+    offset=$(($offset+1))
+    tput cup $offset 10
+    echo "Please, put them in 'archives' folder"
+    offset=$(($offset+2))
+    tput cup $offset 0
 fi
 
 i=0
 
 if [ $i -lt $len ]
 then
-	while [ $i -lt $len ]
-	do
-		filepath=${array[i]}
-		tput sgr0
+    while [ $i -lt $len ]
+    do
+        filepath=${array[i]}
+        tput sgr0
  
- 		# offset=$((5+$i*2))
- 		offset=$(($offset+2))
-		tput cup $offset 15
-	    echo "$((i+1)). ${filepath##*/}"
+        # offset=$((5+$i*2))
+        offset=$(($offset+2))
+        tput cup $offset 15
+        echo "$((i+1)). ${filepath##*/}"
 
-	    i=$(($i+1))
-	done
+        i=$(($i+1))
+    done
 
-	# offset=$((5+$i*2))
-	offset=$(($offset+2))
-	# Set bold mode
-	tput bold
-	tput cup $offset 15
-	read -p "Enter your choice [1-$i] " choice
-	 
-	nointeger=1
+    # offset=$((5+$i*2))
+    offset=$(($offset+2))
+    # Set bold mode
+    tput bold
+    tput cup $offset 15
+    read -p "Enter your choice [1-$i] " choice
+     
+    nointeger=1
 
-	if [[ "$choice" =~ ^[0-9]+$ ]]
+    if [[ "$choice" =~ ^[0-9]+$ ]]
     then
-    	if ((choice <= i && choice >= 1))
-    	then
-    		nointeger=0;
-	    fi
-	fi
+        if ((choice <= i && choice >= 1))
+        then
+            nointeger=0;
+        fi
+    fi
 
-	while [ $nointeger -eq 1 ] ; do
-		# [$choice -le $i] && [$choice -ge 1]
-		# position=$(($position+1))
-		# offset=$((5+$i*2))
-		offset=$(($offset+2))
-		tput cup $(($offset-1)) 15
-	    echo "Please, enter correct number!"
-	    # tput cup $offset 0
-	    # printf "%${COLUMNS}s" ""
-	    tput cup $offset 15
-	    read -p "Enter your choice again [1-$i] " choice
-	    if [[ "$choice" =~ ^[0-9]+$ ]]
-	    then
-	    	if ((choice <= i && choice >= 1))
-	    	then
-	    		nointeger=0;
-		    fi
-		fi
-	done
-	# fi
-	# tput clear
-	tput sgr0
-	# tput rc
+    while [ $nointeger -eq 1 ] ; do
+        # [$choice -le $i] && [$choice -ge 1]
+        # position=$(($position+1))
+        # offset=$((5+$i*2))
+        offset=$(($offset+2))
+        tput cup $(($offset-1)) 15
+        echo "Please, enter correct number!"
+        # tput cup $offset 0
+        # printf "%${COLUMNS}s" ""
+        tput cup $offset 15
+        read -p "Enter your choice again [1-$i] " choice
+        if [[ "$choice" =~ ^[0-9]+$ ]]
+        then
+            if ((choice <= i && choice >= 1))
+            then
+                nointeger=0;
+            fi
+        fi
+    done
+    # fi
+    # tput clear
+    tput sgr0
+    # tput rc
 
-	# offset=$((7+$i*2))
-	offset=$(($offset+2))
-	tput cup $offset 0
+    # offset=$((7+$i*2))
+    offset=$(($offset+2))
+    tput cup $offset 0
 
-	docker exec -it $datanodeid /bin/loadArchiveToHDFS ${array[$(($choice-1))]}
+    docker exec -it $datanodeid /bin/loadArchiveToHDFS ${array[$(($choice-1))]}
 fi
 
 # docker exec -it datanodeid /bin/loadArchiveToHDFS $archivepath$archivename

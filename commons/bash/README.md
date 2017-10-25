@@ -1,31 +1,22 @@
-# Bash scripts
-
-## NOTICE: this script versions load unarchived data to HDFS WITHOUT merging
-## In hive you should use EXTERNAL tables, see examples in bro/scripts/init.sql
-
+# Archive to HDFS extracters
+This document describes how to load data to HDFS
+##### NOTICE:
+In hive you should use EXTERNAL tables and specify path to data in HDFS to work with, see examples here: 
+https://github.com/DmitryZagr/tp-project/blob/master/bro/scripts/init.sql
 ## Scripts to load data in HDFS:
-
-### Internal script (runs in datanode's docker container)
-
-Should be located in /bin/ of datanode's docker container
-
+### Internal datanode's script
+Located in '/bin/' of datanode's docker container
+Can be started only from datanode's docker container
 ```sh
 $ loadArchiveToHDFS [path to any format archive]
 ```
 Script will extract files from archive and than put them at HDFS path: 
-"/user/hive/rawlogs/[folder of the name of the archive]".
-For example, we have archive 200611.zip.
-Than we'll have extracted files at HDFS path:
-/user/hive/rawlogs/200611
-
-### Local machine script (runs out of docker container, but needs the container to be running)
-
-Just call the script from 'archives' folder, that is located
-in 'docker-spark-hive-zeppelin' folder
-
+'/user/hive/rawlogs/[folder of the name of the archive]'
+Path to extracted data in HDFS will be printed in the last line of script's output
+### Local machine script
+Located in 'docker-spark-hive-zeppelin/archives' folder
 ```sh
 $ extractArchiveInHDFS
 ```
-
-The script will read all the archives you've added to 'archives'
-Then you'll be guided through some sort of interface to extract your archive and make it to be ready for Hadoop proccessing 
+The script will read all the archives in its folder and will ask to select one to extract it in HDFS
+Path to extracted data in HDFS will be printed in the last line of script's output

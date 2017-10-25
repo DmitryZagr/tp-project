@@ -9,7 +9,7 @@ CREATE EXTERNAL TABLE IF NOT EXISTS [TABLE_NAME] (
 ROW FORMAT DELIMITED FIELDS TERMINATED BY "\t" 
 -- in your logs fields may be delimeted by \t or , or |. It should be known from log file
 STORED AS TEXTFILE 
-LOCATION "[path to extrcted logs folder in HDFS]";
+LOCATION "[path to extracted logs folder in HDFS]";
 
 -- This command should be executed for ANY table using external HDFS data,
 -- because log files could be located in subdirectories

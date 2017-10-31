@@ -1,5 +1,32 @@
 # Hive
 
+## Новый сценарий
+
+### Создание таблицы для данных в HDFS
+При таком подходе данные представляют собой набор файлов, никак не обработанных после разархивации. Hive сделает абстракцию над ними и не будет лишний раз копировать в свою локацию для работы с ними
+```sh
+%hive
+CREATE EXTERNAL TABLE IF NOT EXISTS [TABLE_NAME] (
+     [column_name] [data_type] COMMENT '[comment]'
+)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY "\t" 
+STORED AS TEXTFILE 
+LOCATION "[path to extracted logs folder in HDFS]"; 
+```
+Параметр TERMINATED BY "\t" показывает нам, каким символом разделены данные между собой
+LOCATION - указываем папку, которая содержит все интересующие нас данные
+
+### Организация рекурсивного поиска
+
+Для того, чтобы указанные в HDFS данные, имеющие вложенную структуру папок, были найдены hive, у него должны быть выставлены определенные глобальные параметры с помощью следующих команд:
+```sh
+%hive
+SET mapred.input.dir.recursive=true;
+SET hive.mapred.supports.subdirectories=true;
+SET hive.supports.subdirectories=true;
+```
+
+## Старый сценарий
 
 ### Создание таблицы для данных Kyoto
 ```sh

@@ -11,15 +11,14 @@ ROW FORMAT DELIMITED FIELDS TERMINATED BY "\t"
 STORED AS TEXTFILE 
 LOCATION "[path to extracted logs folder in HDFS]";
 
--- This command should be executed for ANY table using external HDFS data,
--- because log files could be located in subdirectories
--- WITHOUT this command hive WON'T search for logs in subdirectories
+-- If after table creation and running SELECT * on it you see
+-- empty result, please,
+-- set this global preferences for hive so he would search
+-- locations recursively for input data
 
-alter table [TABLE_NAME] set tblproperties ("hive.input.dir.recursive" = "TRUE",
-     "hive.mapred.supports.subdirectories" = "TRUE",
-     "hive.supports.subdirectories" = "TRUE",
-     "mapred.input.dir.recursive" = "TRUE"
-)
+SET mapred.input.dir.recursive=true;
+SET hive.mapred.supports.subdirectories=true;
+SET hive.supports.subdirectories=true;
 
 -- Here you can see example of tables structers for Bro log format:
 -- (location paths are written for example)
